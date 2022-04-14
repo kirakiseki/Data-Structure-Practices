@@ -68,11 +68,21 @@ void clearScreen()
     printf("\033c");
 }
 
-void subMenu(int sel)
+int input()
+{
+    char input = '\n';
+    while (input == '\n')
+    {
+        fflush(stdin);
+        scanf("%c", &input);
+    }
+    return input - '0';
+}
+
+void showSubMenu(int sel)
 {
     int a = 0;
     clearScreen();
-    fflush(stdin);
     switch (sel)
     {
     case 1:
@@ -84,19 +94,39 @@ void subMenu(int sel)
         printf("          3. 录入比赛成绩\n");
         printf("\n");
         printf("   按数字键选择功能，任意键返回。  \n");
-        scanf("%d", &a);
+        a = input();
+        if (a == 1)
+        {
+            printf("sel1");
+        }
+        else if (a == 2)
+        {
+            printf("sel2");
+        }
+        else if (a == 3)
+        {
+            printf("sel3");
+        }
         break;
     }
     case 2:
     {
         printf("============ 成绩查询 ============\n");
         printf("\n");
-        printf("         1. 查询学校信息\n");
-        printf("         2. 查询运动员\n");
-        printf("         3. 查询比赛信息\n");
+        printf("          1. 查询学校信息\n");
+        printf("          2. 查询运动员\n");
+        printf("          3. 查询比赛信息\n");
         printf("\n");
         printf("   按数字键选择功能，任意键返回。  \n");
-        scanf("%d", &a);
+        a = input();
+        if (a == 1)
+        {
+            printf("sel1");
+        }
+        else if (a == 2)
+        {
+            printf("sel2");
+        }
         break;
     }
     default:
@@ -107,21 +137,24 @@ void subMenu(int sel)
 /**
  * @brief 显示菜单
  */
-void menu()
+void showMenu()
 {
-    int a = 0;
     while (1)
     {
-        printf("%d\n", a);
-        // clearScreen();
+        clearScreen();
         printf("===== 课题1 - 运动会分数统计 =====\n");
         printf("\n");
         printf("          1. 信息录入\n");
         printf("          2. 成绩查询\n");
         printf("\n");
         printf("   按数字键选择功能，任意键退出。  \n");
-        scanf("%d", &a);
-        
+        int a = input();
+        if (a != 1 && a != 2)
+        {
+            break;
+        }
+        fflush(stdin);
+        showSubMenu(a);
     }
 }
 
@@ -364,7 +397,7 @@ int main()
 
     if (systemInit(&schools, &athletes, &events))
     {
-        menu();
+        showMenu();
     }
     else
     {
