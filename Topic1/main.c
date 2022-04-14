@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdbool.h>
 
 typedef bool status;
 
 const int INIT_LENGTH = 10;
-const int INCREMENT = 5;
+const int INCREMENT = 2;
 
 typedef struct
 {
@@ -35,10 +36,26 @@ typedef struct
     int mode;
 } event;
 
-school *schools;
-athlete *athletes;
-event *events;
-int schoolsCount, athletesCount, eventsCount, schoolsLength, athletesLength, eventsLength;
+typedef struct
+{
+    school *base;
+    int length;
+    int size;
+} schoolList;
+
+typedef struct
+{
+    athlete *base;
+    int length;
+    int size;
+} athleteList;
+
+typedef struct
+{
+    event *base;
+    int length;
+    int size;
+} eventList;
 
 /**
  * @brief 清空屏幕
@@ -60,23 +77,26 @@ void showMenu()
 
 /**
  * @brief 系统数据表初始化
+ * @param {schoolList} schools
+ * @param {athleteList} athletes
+ * @param {eventList} events
  * @return {status} 操作状态
  */
-status systemInit()
+status systemInit(schoolList *schools, athleteList *athletes, eventList *events)
 {
-    schools = (school *)malloc(sizeof(school) * INIT_LENGTH);
-    athletes = (athlete *)malloc(sizeof(athlete) * INIT_LENGTH);
-    events = (event *)malloc(sizeof(event) * INIT_LENGTH);
-    if (schools == NULL || athletes == NULL || events == NULL)
+    schools->base = (school *)malloc(sizeof(school) * INIT_LENGTH);
+    athletes->base = (athlete *)malloc(sizeof(athlete) * INIT_LENGTH);
+    events->base = (event *)malloc(sizeof(event) * INIT_LENGTH);
+    if (schools->base == NULL || athletes->base == NULL || events->base == NULL)
     {
         return false;
     }
-    schoolsCount = 0;
-    athletesCount = 0;
-    eventsCount = 0;
-    schoolsLength = INIT_LENGTH;
-    athletesLength = INIT_LENGTH;
-    eventsLength = INIT_LENGTH;
+    schools->length = INIT_LENGTH;
+    athletes->length = INIT_LENGTH;
+    events->length = INIT_LENGTH;
+    schools->size = 0;
+    athletes->size = 0;
+    events->size = 0;
     return true;
 }
 
@@ -84,59 +104,85 @@ status systemInit()
  * @brief 释放数据表空间
  * @return {status} 操作状态
  */
-status systemFree()
+status systemFree(schoolList *schools, athleteList *athletes, eventList *events)
 {
-    free(schools);
-    free(athletes);
-    free(events);
-    schoolsCount = 0;
-    athletesCount = 0;
-    eventsCount = 0;
-    schoolsLength = 0;
-    athletesLength = 0;
-    eventsLength = 0;
+    free(schools->base);
+    free(athletes->base);
+    free(events->base);
+    schools->base = NULL;
+    athletes->base = NULL;
+    events->base = NULL;
+    schools->length = 0;
+    athletes->length = 0;
+    events->length = 0;
+    schools->size = 0;
+    athletes->size = 0;
+    events->size = 0;
     return true;
 }
 
 /**
  * @brief 增加表长
- * @param {void *} 表基址
- * @param {int} 表元素类型(1-school, 2-athlete, 3-event)
- * @param {int} 表长度
+ * @param {int} 表类型(1-schoolList, 2-athleteList, 3-evenList)
+ * @param {int *} 表长度
  * @return {status} 操作状态
  */
-status extendList(void *ptr, int type, int *length)
+status extendList(int type, ...)
 {
-    int size;
-    void *newPtr;
+    va_list argvList;
+    va_start(argvList, type);
     switch (type)
     {
     case 1:
-    { /* school type */
-        newPtr = (school *)realloc(ptr, sizeof(school) * (*length + INCREMENT));
+    {
+        schoolList *schools = va_arg(argvList, schoolList *);
+        schools->base = (school *)realloc(schools->base, sizeof(school) * (schools->length + INCREMENT));
+        if (schools->base == NULL)
+        {
+            return false;
+        }
+        schools->length += INCREMENT;
         break;
     }
     case 2:
-    { /* athlete type */
-        newPtr = (athlete *)realloc(ptr, sizeof(athlete) * (*length + INCREMENT));
+    {
+        athleteList *athletes = va_arg(argvList, athleteList *);
+        athletes->base = (athlete *)realloc(athletes->base, sizeof(athlete) * (athletes->length + INCREMENT));
+        if (athletes->base == NULL)
+        {
+            return false;
+        }
+        athletes->length += INCREMENT;
         break;
     }
     case 3:
-    { /* event type */
-        newPtr = (event *)realloc(ptr, sizeof(event) * (*length + INCREMENT));
+    {
+        eventList *events = va_arg(argvList, eventList *);
+        events->base = (event *)realloc(events->base, sizeof(event) * (events->length + INCREMENT));
+        if (events->base == NULL)
+        {
+            return false;
+        }
+        events->length += INCREMENT;
         break;
     }
-    }
-    if (newPtr == NULL)
-    {
+    default:
         return false;
     }
-    *length += INCREMENT;
-    ptr = newPtr;
     return true;
 }
 
+
+
 int main()
 {
+    schoolList schools;
+    athleteList athletes;
+    eventList events;
+    systemInit(&schools, &athletes, &events);
+    printf("%d %d %d\n", schools.length, athletes.length, events.length);
+    extendList(1, &schools);
+    printf("%d %d %d\n", schools.length, athletes.length, events.length);
+    systemFree(&schools, &athletes, &events);
     return 0;
 }
