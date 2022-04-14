@@ -17,22 +17,23 @@ typedef struct school
     int totalScore;
     int manScore;
     int womanScore;
-    unsigned char name[20];
+    unsigned char name[30];
 } school;
 
 typedef struct athlete
 {
     int id;
     int school;
+    int event;
     int score;
     int sex;
-    unsigned char name[20];
+    unsigned char name[30];
 } athlete;
 
 typedef struct event
 {
     int id;
-    unsigned char name[20];
+    unsigned char name[30];
     int *athletes;
     int athletesCount;
     int mode;
@@ -67,14 +68,61 @@ void clearScreen()
     printf("\033c");
 }
 
+void subMenu(int sel)
+{
+    int a = 0;
+    clearScreen();
+    fflush(stdin);
+    switch (sel)
+    {
+    case 1:
+    {
+        printf("============ 信息录入 ============\n");
+        printf("\n");
+        printf("          1. 录入学校信息\n");
+        printf("          2. 录入运动员\n");
+        printf("          3. 录入比赛成绩\n");
+        printf("\n");
+        printf("   按数字键选择功能，任意键返回。  \n");
+        scanf("%d", &a);
+        break;
+    }
+    case 2:
+    {
+        printf("============ 成绩查询 ============\n");
+        printf("\n");
+        printf("         1. 查询学校信息\n");
+        printf("         2. 查询运动员\n");
+        printf("         3. 查询比赛信息\n");
+        printf("\n");
+        printf("   按数字键选择功能，任意键返回。  \n");
+        scanf("%d", &a);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 /**
  * @brief 显示菜单
  */
-void showMenu()
+void menu()
 {
-    // TODO
-    clearScreen();
-    printf("===== 课题1 - 运动会分数统计 =====\n");
+    int a = 0;
+    while (1)
+    {
+        printf("%d\n", a);
+        // clearScreen();
+        printf("===== 课题1 - 运动会分数统计 =====\n");
+        printf("\n");
+        printf("          1. 信息录入\n");
+        printf("          2. 成绩查询\n");
+        printf("\n");
+        printf("   按数字键选择功能，任意键退出。  \n");
+        scanf("%d", &a);
+        
+    }
 }
 
 /**
@@ -170,7 +218,6 @@ status extendList(int type, ...)
     default:
         return false;
     }
-    printf("extended%d\n",type);
     return true;
 }
 
@@ -216,6 +263,60 @@ status insertElem(int type, ...)
     return true;
 }
 
+status deleteElem(int type, int nth, ...)
+{
+    va_list argvList;
+    va_start(argvList, nth);
+    switch (type)
+    {
+    case 1:
+    {
+        schoolList *schools = va_arg(argvList, schoolList *);
+        if (nth > schools->size || nth < 1)
+        {
+            return false;
+        }
+        for (int i = nth - 1; i < schools->size - 1; i++)
+        {
+            schools->base[i] = schools->base[i + 1];
+        }
+        schools->size--;
+        break;
+    }
+    case 2:
+    {
+        athleteList *athletes = va_arg(argvList, athleteList *);
+        if (nth > athletes->size || nth < 1)
+        {
+            return false;
+        }
+        for (int i = nth - 1; i < athletes->size - 1; i++)
+        {
+            athletes->base[i] = athletes->base[i + 1];
+        }
+        athletes->size--;
+        break;
+    }
+    case 3:
+    {
+        eventList *events = va_arg(argvList, eventList *);
+        if (nth > events->size || nth < 1)
+        {
+            return false;
+        }
+        for (int i = nth - 1; i < events->size - 1; i++)
+        {
+            events->base[i] = events->base[i + 1];
+        }
+        events->size--;
+        break;
+    }
+    default:
+        return false;
+    }
+    return true;
+}
+
 status traverse(int type, ...)
 {
     va_list argvList;
@@ -236,7 +337,7 @@ status traverse(int type, ...)
         athleteList *athletes = va_arg(argvList, athleteList *);
         for (int i = 0; i < athletes->size; i++)
         {
-            printf("%d\t%s\n",athletes->base[i].id,athletes->base[i].name);
+            printf("%d\t%s\n", athletes->base[i].id, athletes->base[i].name);
         }
         break;
     }
@@ -245,7 +346,7 @@ status traverse(int type, ...)
         eventList *events = va_arg(argvList, eventList *);
         for (int i = 0; i < events->size; i++)
         {
-            printf("%d\t%s\n",events->base[i].id,events->base[i].name);
+            printf("%d\t%s\n", events->base[i].id, events->base[i].name);
         }
         break;
     }
@@ -260,17 +361,15 @@ int main()
     schoolList schools;
     athleteList athletes;
     eventList events;
-    systemInit(&schools, &athletes, &events);
-    printf("%d %d %d\n", schools.length, athletes.length, events.length);
-    school school1;
-    school1.id=1;
-    strcpy(school1.name, "北京大学");
-    insertElem(1, &schools, school1);
-    insertElem(1, &schools, school1);
-    insertElem(1, &schools, school1);
-    insertElem(1, &schools, school1);
-    traverse(1, &schools);
-    printf("%d %d %d\n", schools.length, athletes.length, events.length);
+
+    if (systemInit(&schools, &athletes, &events))
+    {
+        menu();
+    }
+    else
+    {
+        printf("系统初始化失败！\n");
+    }
     systemFree(&schools, &athletes, &events);
     return 0;
 }
