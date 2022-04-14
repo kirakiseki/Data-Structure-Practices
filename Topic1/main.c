@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
 
 typedef bool status;
 
-const int INIT_LENGTH = 10;
+const int INIT_LENGTH = 3;
 const int INCREMENT = 2;
 
-typedef struct
+typedef struct school
 {
     int id;
     int *athletes;
@@ -16,18 +17,19 @@ typedef struct
     int totalScore;
     int manScore;
     int womanScore;
+    unsigned char name[20];
 } school;
 
-typedef struct
+typedef struct athlete
 {
-    int number;
+    int id;
     int school;
     int score;
     int sex;
     unsigned char name[20];
 } athlete;
 
-typedef struct
+typedef struct event
 {
     int id;
     unsigned char name[20];
@@ -36,21 +38,21 @@ typedef struct
     int mode;
 } event;
 
-typedef struct
+typedef struct schoolList
 {
     school *base;
     int length;
     int size;
 } schoolList;
 
-typedef struct
+typedef struct athleteList
 {
     athlete *base;
     int length;
     int size;
 } athleteList;
 
-typedef struct
+typedef struct eventList
 {
     event *base;
     int length;
@@ -123,8 +125,7 @@ status systemFree(schoolList *schools, athleteList *athletes, eventList *events)
 
 /**
  * @brief 增加表长
- * @param {int} 表类型(1-schoolList, 2-athleteList, 3-evenList)
- * @param {int *} 表长度
+ * @param {int} 表类型(1-schoolList, 2-athleteList, 3-eventList)
  * @return {status} 操作状态
  */
 status extendList(int type, ...)
@@ -169,10 +170,90 @@ status extendList(int type, ...)
     default:
         return false;
     }
+    printf("extended%d\n",type);
     return true;
 }
 
+status insertElem(int type, ...)
+{
+    va_list argvList;
+    va_start(argvList, type);
+    switch (type)
+    {
+    case 1:
+    {
+        schoolList *schools = va_arg(argvList, schoolList *);
+        if (schools->size == schools->length && extendList(1, schools) == false)
+        {
+            return false;
+        }
+        schools->base[schools->size++] = va_arg(argvList, school);
+        break;
+    }
+    case 2:
+    {
+        athleteList *athletes = va_arg(argvList, athleteList *);
+        if (athletes->size == athletes->length && extendList(2, athletes) == false)
+        {
+            return false;
+        }
+        athletes->base[athletes->size++] = va_arg(argvList, athlete);
+        break;
+    }
+    case 3:
+    {
+        eventList *events = va_arg(argvList, eventList *);
+        if (events->size == events->length && extendList(3, events) == false)
+        {
+            return false;
+        }
+        events->base[events->size++] = va_arg(argvList, event);
+        break;
+    }
+    default:
+        return false;
+    }
+    return true;
+}
 
+status traverse(int type, ...)
+{
+    va_list argvList;
+    va_start(argvList, type);
+    switch (type)
+    {
+    case 1:
+    {
+        schoolList *schools = va_arg(argvList, schoolList *);
+        for (int i = 0; i < schools->size; i++)
+        {
+            printf("%d\t%s\n", schools->base[i].id, schools->base[i].name);
+        }
+        break;
+    }
+    case 2:
+    {
+        athleteList *athletes = va_arg(argvList, athleteList *);
+        for (int i = 0; i < athletes->size; i++)
+        {
+            printf("%d\t%s\n",athletes->base[i].id,athletes->base[i].name);
+        }
+        break;
+    }
+    case 3:
+    {
+        eventList *events = va_arg(argvList, eventList *);
+        for (int i = 0; i < events->size; i++)
+        {
+            printf("%d\t%s\n",events->base[i].id,events->base[i].name);
+        }
+        break;
+    }
+    default:
+        return false;
+    }
+    return true;
+}
 
 int main()
 {
@@ -181,7 +262,14 @@ int main()
     eventList events;
     systemInit(&schools, &athletes, &events);
     printf("%d %d %d\n", schools.length, athletes.length, events.length);
-    extendList(1, &schools);
+    school school1;
+    school1.id=1;
+    strcpy(school1.name, "北京大学");
+    insertElem(1, &schools, school1);
+    insertElem(1, &schools, school1);
+    insertElem(1, &schools, school1);
+    insertElem(1, &schools, school1);
+    traverse(1, &schools);
     printf("%d %d %d\n", schools.length, athletes.length, events.length);
     systemFree(&schools, &athletes, &events);
     return 0;
