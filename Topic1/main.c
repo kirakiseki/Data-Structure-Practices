@@ -348,7 +348,7 @@ int input()
     return input - '0';
 }
 
-status traverse(int type, ...)
+status printAll(int type, ...)
 {
     va_list argvList;
     va_start(argvList, type);
@@ -387,32 +387,64 @@ status traverse(int type, ...)
     return true;
 }
 
-int findNthBySchoolId(schoolList schools, int id){
-    for (int i = 0; i < schools.size; i++)
+int findNthById(int type, int id, ...)
+{
+    va_list argvList;
+    va_start(argvList, id);
+    switch (type)
     {
-        if (schools.base[i].id == id)
+    case 1:
+    {
+        schoolList schools = va_arg(argvList, schoolList);
+        for (int i = schools.size-1; i >=0; i--)
         {
-            return i+1;
+            if (schools.base[i].id == id)
+            {
+                return i + 1;
+            }
         }
+        break;
     }
-    return -1;
+    case 2:
+    {
+        athleteList athletes = va_arg(argvList, athleteList);
+        for (int i = athletes.size-1; i >=0; i--)
+        {
+            if (athletes.base[i].id == id)
+            {
+                return i + 1;
+            }
+        }
+        break;
+    }
+    case 3:
+    {
+        eventList events = va_arg(argvList, eventList);
+       for (int i = events.size-1; i >=0; i--)
+        {
+            if (events.base[i].id == id)
+            {
+                return i + 1;
+            }
+        }
+        break;
+    }
+    default:
+        return -1;
+    }
 }
 
-status inputSchool(schoolList *schools, int cnt)
+bool hasConflictId(schoolList *schools)
 {
-    printf("请输入学校信息：编号 名称\n");
-    school inputSchool={0,NULL,0,0,0,0};
-    while (cnt--)
+    sortById(1, schools);
+    for (int i = 0; i < schools->size - 1; i++)
     {
-        char name[NAME_LENGTH];
-        scanf("%d %s", &inputSchool.id, name);
-        strcpy(inputSchool.name, name);
-        if (insertElem(1, schools->size + 1, schools, inputSchool) == false)
+        if (schools->base[i].id == schools->base[i + 1].id)
         {
-            printf("输入错误，请重新输入\n");
-            cnt++;
+            return true;
         }
     }
+    return false;
 }
 
 status deleteSchool(schoolList *schools, int cnt)
@@ -422,9 +454,34 @@ status deleteSchool(schoolList *schools, int cnt)
     {
         int id;
         scanf("%d", &id);
-        if (deleteElem(1, findNthBySchoolId(*schools,id), schools) == false)
+        if (deleteElem(1, findNthById(1, id, *schools), schools) == false)
         {
             printf("输入错误，请重新输入\n");
+            cnt++;
+        }
+    }
+}
+
+status inputSchool(schoolList *schools, int cnt)
+{
+    printf("请输入学校信息：编号 名称\n");
+    school inputSchool = {0, NULL, 0, 0, 0, 0};
+    while (cnt--)
+    {
+        int id;
+        char name[NAME_LENGTH];
+        scanf("%d %s", &id, name);
+        inputSchool.id = id;
+        strcpy(inputSchool.name, name);
+        if (insertElem(1, schools->size + 1, schools, inputSchool) == false)
+        {
+            printf("插入失败，请重新输入\n");
+            cnt++;
+        }
+        if (hasConflictId(schools))
+        {
+            printf("输入错误，学校编号重复，请重新输入\n");
+            deleteElem(1, findNthById(1, id, *schools), schools);
             cnt++;
         }
     }
@@ -458,10 +515,10 @@ void showSubMenu(int sel, schoolList *schools, athleteList *athletes, eventList 
             else
             {
                 printf("学校信息如下：\n");
-                traverse(1, schools);
+                printAll(1, schools);
             }
             printf("\n");
-            printf("请输入录入学校数目：(正数增加，负数删除,0返回)  ");
+            printf("请输入录入学校数目：(正数增加, 负数删除, 0返回)  ");
             int cnt;
             scanf("%d", &cnt);
             if (cnt == 0)
@@ -479,7 +536,7 @@ void showSubMenu(int sel, schoolList *schools, athleteList *athletes, eventList 
             printf("\n");
             printf("学校信息如下：\n");
             sortById(1, schools);
-            traverse(1, schools);
+            printAll(1, schools);
             printf("\n");
             printf("按q返回。\n");
             char input = 0;
@@ -573,7 +630,6 @@ int main()
         // deleteElem(1, 2, &schools);
         // deleteElem(1, 1, &schools);
         // traverse(1, &schools);
-        
     }
     else
     {
