@@ -62,6 +62,12 @@ typedef struct eventList
     int size;
 } eventList;
 
+typedef enum type{
+    School,
+    Athlete,
+    Event
+}type;
+
 /**
  * @brief 系统数据表初始化
  * @param {schoolList} schools
@@ -113,13 +119,13 @@ status systemFree(schoolList *schools, athleteList *athletes, eventList *events)
  * @param {int} 表类型(1-schoolList, 2-athleteList, 3-eventList)
  * @return {status} 操作状态
  */
-status extendList(int type, ...)
+status extendList(type type, ...)
 {
     va_list argvList;
     va_start(argvList, type);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList *schools = va_arg(argvList, schoolList *);
         schools->base = (school *)realloc(schools->base, sizeof(school) * (schools->length + INCREMENT));
@@ -130,7 +136,7 @@ status extendList(int type, ...)
         schools->length += INCREMENT;
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList *athletes = va_arg(argvList, athleteList *);
         athletes->base = (athlete *)realloc(athletes->base, sizeof(athlete) * (athletes->length + INCREMENT));
@@ -141,7 +147,7 @@ status extendList(int type, ...)
         athletes->length += INCREMENT;
         break;
     }
-    case 3:
+    case Event:
     {
         eventList *events = va_arg(argvList, eventList *);
         events->base = (event *)realloc(events->base, sizeof(event) * (events->length + INCREMENT));
@@ -158,20 +164,20 @@ status extendList(int type, ...)
     return true;
 }
 
-status insertElem(int type, int nth, ...)
+status insertElem(type type, int nth, ...)
 {
     va_list argvList;
     va_start(argvList, nth);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList *schools = va_arg(argvList, schoolList *);
         if (nth < 1 || nth > schools->size + 1)
         {
             return false;
         }
-        if (schools->size >= schools->length && extendList(1, schools) == false)
+        if (schools->size >= schools->length && extendList(School, schools) == false)
         {
             return false;
         }
@@ -183,14 +189,14 @@ status insertElem(int type, int nth, ...)
         schools->size++;
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList *athletes = va_arg(argvList, athleteList *);
         if (nth < 1 || nth > athletes->size + 1)
         {
             return false;
         }
-        if (athletes->size >= athletes->length && extendList(2, athletes) == false)
+        if (athletes->size >= athletes->length && extendList(Athlete, athletes) == false)
         {
             return false;
         }
@@ -202,14 +208,14 @@ status insertElem(int type, int nth, ...)
         athletes->size++;
         break;
     }
-    case 3:
+    case Event:
     {
         eventList *events = va_arg(argvList, eventList *);
         if (nth < 1 || nth > events->size + 1)
         {
             return false;
         }
-        if (events->size >= events->length && extendList(3, events) == false)
+        if (events->size >= events->length && extendList(Event, events) == false)
         {
             return false;
         }
@@ -227,13 +233,13 @@ status insertElem(int type, int nth, ...)
     return true;
 }
 
-status deleteElem(int type, int nth, ...)
+status deleteElem(type type, int nth, ...)
 {
     va_list argvList;
     va_start(argvList, nth);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList *schools = va_arg(argvList, schoolList *);
         if (nth > schools->size || nth < 1)
@@ -247,7 +253,7 @@ status deleteElem(int type, int nth, ...)
         schools->size--;
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList *athletes = va_arg(argvList, athleteList *);
         if (nth > athletes->size || nth < 1)
@@ -261,7 +267,7 @@ status deleteElem(int type, int nth, ...)
         athletes->size--;
         break;
     }
-    case 3:
+    case Event:
     {
         eventList *events = va_arg(argvList, eventList *);
         if (nth > events->size || nth < 1)
@@ -299,25 +305,25 @@ int compareEventById(const void *a, const void *b)
     return ((event *)a)->id - ((event *)b)->id;
 }
 
-status sortById(int type, ...)
+status sortById(type type, ...)
 {
     va_list argvList;
     va_start(argvList, type);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList *schools = va_arg(argvList, schoolList *);
         qsort(schools->base, schools->size, sizeof(school), compareSchoolById);
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList *athletes = va_arg(argvList, athleteList *);
         qsort(athletes->base, athletes->size, sizeof(athlete), compareAthleteById);
         break;
     }
-    case 3:
+    case Event:
     {
         eventList *events = va_arg(argvList, eventList *);
         qsort(events->base, events->size, sizeof(event), compareEventById);
@@ -348,13 +354,13 @@ int input()
     return input - '0';
 }
 
-status printAll(int type, ...)
+status printAll(type type, ...)
 {
     va_list argvList;
     va_start(argvList, type);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList *schools = va_arg(argvList, schoolList *);
         for (int i = 0; i < schools->size; i++)
@@ -363,7 +369,7 @@ status printAll(int type, ...)
         }
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList *athletes = va_arg(argvList, athleteList *);
         for (int i = 0; i < athletes->size; i++)
@@ -372,7 +378,7 @@ status printAll(int type, ...)
         }
         break;
     }
-    case 3:
+    case Event:
     {
         eventList *events = va_arg(argvList, eventList *);
         for (int i = 0; i < events->size; i++)
@@ -387,13 +393,13 @@ status printAll(int type, ...)
     return true;
 }
 
-int findNthById(int type, int id, ...)
+int findNthById(type type, int id, ...)
 {
     va_list argvList;
     va_start(argvList, id);
     switch (type)
     {
-    case 1:
+    case School:
     {
         schoolList schools = va_arg(argvList, schoolList);
         for (int i = schools.size-1; i >=0; i--)
@@ -405,7 +411,7 @@ int findNthById(int type, int id, ...)
         }
         break;
     }
-    case 2:
+    case Athlete:
     {
         athleteList athletes = va_arg(argvList, athleteList);
         for (int i = athletes.size-1; i >=0; i--)
@@ -417,12 +423,12 @@ int findNthById(int type, int id, ...)
         }
         break;
     }
-    case 3:
+    case Event:
     {
         eventList events = va_arg(argvList, eventList);
        for (int i = events.size-1; i >=0; i--)
         {
-            if (events.base[i].id == id)
+            if (events.base[i].id == id) 
             {
                 return i + 1;
             }
@@ -436,7 +442,7 @@ int findNthById(int type, int id, ...)
 
 bool hasConflictId(schoolList *schools)
 {
-    sortById(1, schools);
+    sortById(School, schools);
     for (int i = 0; i < schools->size - 1; i++)
     {
         if (schools->base[i].id == schools->base[i + 1].id)
@@ -454,7 +460,7 @@ status deleteSchool(schoolList *schools, int cnt)
     {
         int id;
         scanf("%d", &id);
-        if (deleteElem(1, findNthById(1, id, *schools), schools) == false)
+        if (deleteElem(School, findNthById(School, id, *schools), schools) == false)
         {
             printf("输入错误，请重新输入\n");
             cnt++;
@@ -473,7 +479,7 @@ status inputSchool(schoolList *schools, int cnt)
         scanf("%d %s", &id, name);
         inputSchool.id = id;
         strcpy(inputSchool.name, name);
-        if (insertElem(1, schools->size + 1, schools, inputSchool) == false)
+        if (insertElem(School, schools->size + 1, schools, inputSchool) == false)
         {
             printf("插入失败，请重新输入\n");
             cnt++;
@@ -481,7 +487,7 @@ status inputSchool(schoolList *schools, int cnt)
         if (hasConflictId(schools))
         {
             printf("输入错误，学校编号重复，请重新输入\n");
-            deleteElem(1, findNthById(1, id, *schools), schools);
+            deleteElem(School, findNthById(School, id, *schools), schools);
             cnt++;
         }
     }
@@ -515,7 +521,7 @@ void showSubMenu(int sel, schoolList *schools, athleteList *athletes, eventList 
             else
             {
                 printf("学校信息如下：\n");
-                printAll(1, schools);
+                printAll(School, schools);
             }
             printf("\n");
             printf("请输入录入学校数目：(正数增加, 负数删除, 0返回)  ");
@@ -535,8 +541,8 @@ void showSubMenu(int sel, schoolList *schools, athleteList *athletes, eventList 
             }
             printf("\n");
             printf("学校信息如下：\n");
-            sortById(1, schools);
-            printAll(1, schools);
+            sortById(School, schools);
+            printAll(School, schools);
             printf("\n");
             printf("按q返回。\n");
             char input = 0;
