@@ -6,7 +6,7 @@
  *  Charset: UTF-8
  *  Language: cpp
  *  
- *  Tested on gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.38 (Linux version 5.15.32-1-MANJARO) and 
+ *  Tested on gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.38 on Linux version 5.15.32-1-MANJARO and gcc version 11.2.0 (Rev10, Built by MSYS2 project) on Windows 10 20H2
  *
  *  Description: 将A-J字符采用Fisher–Yates算法随机打乱（shuffle函数），生成随机二叉树（randomBTreeEdges函数）后匹配输出（按次序输出二叉树的每一条边）。
  * 

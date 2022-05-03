@@ -6,11 +6,12 @@
  *  Charset: UTF-8
  *  Language: cpp
  *
- *  Tested on gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.38 (Linux version 5.15.32-1-MANJARO) and 
+ *  Tested on gcc (GCC) 11.2.0, GNU ld (GNU Binutils) 2.38 on Linux version 5.15.32-1-MANJARO and gcc version 11.2.0 (Rev10, Built by MSYS2 project) on Windows 10 20H2
  * 
  *  Description: 从中序及后序遍历建立二叉树（createTreeFromInAndPostOrderTraverse函数），然后后序查找指定元素，并输出根结点到指定结点的路径。
  * 
  *  Usage:  输入二叉树的中序及后序遍历及查找元素，输出根结点到指定结点的路径。
+ * 
  */
 
 #include <iostream>
